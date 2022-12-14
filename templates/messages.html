@@ -1,0 +1,253 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<div id="chat">
+    <div class="container py-4" id="chat-page">
+        <div class="row shadow-lg" style="height: 100%;">
+            <!-- partea din staga unde apar conversatiile -->
+            <div class="col-md-4 d-flex flex-column bg-whitesmoke " style="padding: 0rem;" id="conversations">
+                <!-- Headerul de la conversatii - usernameul si cele 3 puncte -->
+                <div class="d-flex justify-content-between border py-2 px-4" id="chat-conversation-header">
+
+                    <div class="">
+                        {{user_name}}
+                    </div>
+
+                    <div class="d-flex align-self-center px-2 py-2" style="cursor: pointer;" id="chat-conversation-header-settings">
+                        <i class="fa-solid fa-ellipsis-vertical fa-lg"></i>
+                        <div class="border border-1"  id="chat-conversation-header-settings-options">
+                            <div class="px-2 py-2 option" id="settings-add-new-room-option">
+                                add new room
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!--  -->
+                <!-- SearchBarul -->
+                <div class="" id="chat-searchbar">
+
+                </div>
+                <!--  -->
+                <!-- Conversatiile existenta -->
+                <div class="overflow-allowed-y" id="chat-conversations">
+                    {% for chat in chats %}
+                        <div class="border py-2 px-4 room overflow-not-allowed " id="room-id-{{chat.id}}">
+                            <div class="room-name">{{chat.room_name}}</div>
+                            <div class="last-message overflow-not-allowed" style="display:inline-block">{{chat.last_message}}</div>
+                            <div class="three-dots hidden"><i class="fa-solid fa-ellipsis"></i></div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <!--  -->
+            </div>
+            <!--  -->
+            <!-- partea din dreapta unde apar mesajele -->
+            <div class="col-md-8 bg-lightgrey" style="padding: 0rem;" id="messages">
+                <!-- Header-ul chatului -->
+                <div class="d-flex justify-content-between border py-2 px-4 opacity-0" id="chat-conversation-message-header">
+
+                    <div id="chat-conversation-message-room-name">
+                        room name
+                    </div>
+
+                    <div class="d-flex align-self-center px-2 py-2" style="cursor: pointer;" id="chat-conversation-message-settings">
+                        <i class="fa-solid fa-ellipsis-vertical fa-lg"></i>
+                        <div class="border border-1"  id="chat-conversation-message-settings-options">
+                            <div class="px-2 py-2 option" id="settings-leave-room-option">
+                                leave room
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div style="position:relative">
+                    <div class="d-flex">
+                        <div class="py-2 px-4" id="chat-conversation-participants">
+                            <div class="opacity-0">Participants</div>
+                        </div> 
+                        <div class="align-self-center px-1 py-1 hidden" id="chat-conversation-invite-person">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>  
+                    </div>
+                    <div class="px-1 py-1 bg-lightgrey hidden" style=" position: absolute;width: 100%;left: 0;bottom: 0;transform: translate(0%,100%); z-index: 101;">
+                        <select class="w-50 ms-4" id="chat-invite-people-choose">
+                        </select>
+                        <div class="ms-3" style="cursor:pointer" id="close-mark">
+                            <i class="fa-solid fa-xmark"></i> 
+                        </div>
+                    </div>
+                </div>
+                
+                <!--  -->
+                <!-- Mesajul propriu zis -->
+                <div class="d-flex flex-column" id="chat-conversation-message">
+                    <div class="rounded hidden" style="position: absolute;right: 2rem;bottom: 6rem;z-index: 102;background-color: aquamarine; width: 30px;height: 30px;cursor:pointer;" id="scroll-down">
+                        <div class="m-auto" >
+                            <i class="fa-solid fa-arrow-down" ></i>
+                        </div>
+                    </div>
+                    <!-- Contentul -->
+                    <div class="px-2 py-2 bg-white align-self-stretch d-flex flex-column opacity-0"id="chat-conversation-message-content">
+                    </div>
+                    <!--  -->
+                    <!-- Bara de scris mesaje -->
+                    <div class="px-2 py-2 border bg-whitesmoke opacity-0" id="chat-conversation-message-type">
+                        <div class="bg-lightgrey px-2 hidden" style="position:absolute;bottom:100%;left:0;">
+                            <form action="" method="POST" enctype="multipart/form-data">
+                                <input type="file" accept="image/png, image/jpeg" name="file" class="hidden"/>
+                                {% csrf_token %}
+                                <button type="submit" class="hidden" id="submit-image-btn"></button>
+                                <button type="reset" class="hidden" id="reset-image-btn"></button>
+                            </form>
+                            <span>image.png</span>
+                            <i class="fa-solid fa-xmark ms-4" style="cursor: pointer;" id="chat-image-cancel"></i>
+                        </div>
+                        <i class="fa-solid fa-paperclip" style="display:inline;cursor: pointer;"  id="message-sender-attach"></i>
+                        <input style="display:inline;width:90%" class="rounded form-control" type="text" name="message-send" placeholder="Write message..." id="message-sender"/>
+                        <i class="fa-solid fa-paper-plane px-2 py-2" style="display:inline;cursor: pointer;" id="message-sender-btn"></i>
+                    </div>
+                    <!--  -->
+                </div>
+                <!--  -->
+            </div>
+            <!--  -->
+        </div>
+    </div>
+</div>
+<script>
+
+    function removeChildren(cont){
+        var child = cont.lastElementChild;
+        while (child) {
+            cont.removeChild(child);
+            child = cont.lastElementChild;
+        }
+    }
+
+    function appendParticipantDiv(container, element){
+        let newDiv=document.createElement("div")
+        newDiv.classList.add("px-1","py-1","rounded","border","border-1","ms-1")
+        newDiv.style.display="inline"
+        newDiv.innerHTML=element
+        container.appendChild(newDiv)
+    }
+
+    let chatsString1 = "{{chats|safe}}"
+    chatsString1 = chatsString1.replaceAll("\'", "\"")
+    localStorage.setItem("chats",chatsString1)
+    let selected_room;
+
+
+    async function createNewRoom(name) {
+        $.post(
+            "/create-room",
+            {
+                room_name: name,
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+            },
+            function(data,status){
+                const div=document.getElementById("theNewDiv")
+                div.id="room-id-"+data
+                div.addEventListener("click", () => {
+                    showConversation(data, name, [])
+                    showParticipants(data)
+                    document.getElementById("chat-conversation-invite-person").classList.remove("hidden")
+                })
+            }
+        )
+    }
+
+    async function showParticipants(room_id) {
+        const response = await $.ajax({
+            type: "GET",
+            url: "/get-participants/"+room_id,
+        })
+        .then(res=>{
+            return res 
+        })
+        const participants = JSON.parse(response)
+        const container = document.getElementById("chat-conversation-participants")
+        removeChildren(container)
+        let newDiv=document.createElement("div")
+        newDiv.classList.add("px-1","py-1")
+        newDiv.style.display="inline"
+        newDiv.innerHTML="Participants"
+        container.appendChild(newDiv)
+        participants.forEach(element => {
+            appendParticipantDiv(container,element)
+        });
+    }
+
+    async function setPossibleParticipants(){
+        const response = await $.ajax({
+            type: "GET",
+            url: "/get-user-not-in-room/"+selected_room,
+        })
+        .then(res=>{
+            return res 
+        })
+        const users = JSON.parse(response.replaceAll("\'","\""))
+        const select = document.getElementById("chat-invite-people-choose")
+        users.forEach(el=>{
+            let option = document.createElement("option")
+            option.innerHTML = el.name
+            option.classList.add(el.id)
+            select.appendChild(option)
+        })
+        
+    }
+
+    async function addUserToRoom(user_id){
+        $.ajax({
+            type: "POST",
+            url: "/add-user-to-room",
+            data: {
+                user_id: user_id,
+                room_id:selected_room,
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+            },
+            dataType: "json",
+        })
+    }
+
+
+    async function addMessageWithImage(text){
+        let blobFile = document.querySelector("#chat-conversation-message-type input").files[0]
+        let formData = new FormData();
+        if(blobFile!==undefined){
+            formData.append("fileToUpload", blobFile);
+        }
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        formData.append("room_id",selected_room)
+        formData.append("message",text)
+        const pathToFile = await fetch('{% url "add-message" %}', {
+            method: 'POST',
+            body: formData
+        }).then(res=>res.text())
+        .then(res=>{return res})
+        return pathToFile
+    }
+
+    async function leaveRoom(){
+        $.ajax({
+            type: "POST",
+            url: "/user-leave-room",
+            data: {
+                room_id:selected_room,
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+            },
+            dataType: "json",
+        })
+        document.getElementById(`room-id-${selected_room}`).remove()
+        selected_room=""
+    }
+
+</script>
+<script src="{% static 'js/messages/conversations.js' %}"></script>
+<script src="{% static 'js/messages/settingsdots.js' %}"></script>
+<script src="{% static 'js/messages/heightsetter.js' %}"></script>
+
+
+{% endblock content %}

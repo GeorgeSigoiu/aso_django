@@ -1,0 +1,29 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h1>DASHBOARD</h1>
+    <h2>User: {{user.name}}</h2>  
+    <h2>username: {{user.username}}</h2>  
+    <h2>password: {{user.password}}</h2>  
+    <h2>email: {{user.email}}</h2>  
+    <h2>id: {{user.id}}</h2>  
+</div>
+
+<script>
+    let username = "{{user.username|safe}}"
+    let password = "{{user.password|safe}}"
+    let name = "{{user.name|safe}}"
+    let email = "{{user.email|safe}}"
+    let id = "{{user.id|safe}}"
+    const user = {
+        "username":username,
+        "password":password,
+        "id":id,
+        "email":email,
+        "name":name
+    }
+    localStorage.setItem("logged_user", JSON.stringify(user))
+</script>
+{% endblock content %}
