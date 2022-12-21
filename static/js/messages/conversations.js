@@ -38,7 +38,7 @@ function showConversation(id, roomName, messages) {
         if (message.user_id === user_id) {
             addDivMessage("Me", message.text, message.photo, message.time)
         } else {
-            addDivMessage(message.user_name, message.photo, message.text, message.time)
+            addDivMessage(message.user_name, message.text, message.photo, message.time)
         }
     })
 
