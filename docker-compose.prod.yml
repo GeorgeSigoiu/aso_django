@@ -8,6 +8,7 @@ services:
     command: gunicorn project.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
     expose:
       - 8000:8000
     env_file:
@@ -24,6 +25,7 @@ services:
     build: ./nginx
     volumes:
       - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
       # - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       # - ./nginx/my-site.com.crt:/etc/nginx/my-site.com.crt
       # - ./nginx/my-site.com.key:/etc/nginx/my-site.com.key
@@ -36,3 +38,4 @@ services:
 volumes:
   postgres_data:
   static_volume:
+  media_volume:

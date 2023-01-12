@@ -59,7 +59,8 @@ function addDivMessage(person, text, photo_url, time) {
 
     let image = document.createElement("img")
     if (photo_url !== "") {
-        image.src = "../static/images" + photo_url
+        image.src = photo_url
+        console.log("photo url", photo_url)
         image.style.maxWidth = "400px"
     }
 
@@ -110,6 +111,7 @@ async function sendMessage() {
     let blobFile = elem.querySelector("input").files[0]
     if (message.length > 0 || blobFile !== undefined) {
         const pathToFile = await addMessageWithImage(message)
+        console.log(pathToFile)
         addDivMessage("Me", message, pathToFile, time)
     }
     resetImage()

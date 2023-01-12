@@ -185,9 +185,11 @@ def addMessageOrImage(request):
         try:
             fileToUpload = request.FILES["fileToUpload"]
             fss = FileSystemStorage()
-            file = fss.save("ph/"+fileToUpload.name, fileToUpload)
+            file = fss.save("ph/" + fileToUpload.name, fileToUpload)
             file_url = fss.url(file)
+            print("Image saved at: ", file_url)
         except:
+            print("Error saving the photo")
             pass
         print("file_url", file_url)
 
